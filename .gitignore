@@ -1,0 +1,16 @@
+# Секрети
+.env
+certs/*.key
+certs/*.crt
+certs/*.pem
+certs/*.srl
+certs/*.csr
+mosquitto/config/passwd
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Дані openHAB
+openhab/userdata/
