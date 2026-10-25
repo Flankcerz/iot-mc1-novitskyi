@@ -14,3 +14,5 @@ __pycache__/
 
 # Дані openHAB
 openhab/userdata/
+openhab/conf/things/mqtt.things
+certs/*.jks

@@ -1,0 +1,87 @@
+Bridge mqtt:broker:home "MQTT брокер" [
+    host="mosquitto", port=8883, secure=true,
+    username="openhab", password="__OPENHAB_PASS__",
+    qos=1, clientID="openhab-home", retainMessages=false
+] {
+    // ---------- Сенсори ----------
+    Thing topic door "Геркон дверей" [
+        availabilityTopic="home/entrance/door/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type contact : state "Стан" [ stateTopic="home/entrance/door/telemetry",
+                transformationPattern="JSONPATH:$.value", openValue="OPEN", closedValue="CLOSED" ]
+    }
+    Thing topic window1 "Вікно 1" [
+        availabilityTopic="home/livingroom/window1/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type contact : state "Стан" [ stateTopic="home/livingroom/window1/telemetry",
+                transformationPattern="JSONPATH:$.value", openValue="OPEN", closedValue="CLOSED" ]
+    }
+    Thing topic window2 "Вікно 2" [
+        availabilityTopic="home/bedroom/window2/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type contact : state "Стан" [ stateTopic="home/bedroom/window2/telemetry",
+                transformationPattern="JSONPATH:$.value", openValue="OPEN", closedValue="CLOSED" ]
+    }
+    Thing topic motion "Рух на подвір'ї" [
+        availabilityTopic="home/yard/motion/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type switch : state "Рух" [ stateTopic="home/yard/motion/telemetry",
+                transformationPattern="JSONPATH:$.value", on="ON", off="OFF" ]
+    }
+    Thing topic smoke "Датчик диму" [
+        availabilityTopic="home/hall/smoke/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type number : level "Задимленість" [ stateTopic="home/hall/smoke/telemetry",
+                transformationPattern="JSONPATH:$.value" ]
+    }
+    Thing topic keypad "Клавіатура" [
+        availabilityTopic="home/hall/keypad/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type string : code "Введений код" [ stateTopic="home/hall/keypad/telemetry",
+                transformationPattern="JSONPATH:$.value" ]
+    }
+
+    // ---------- Актуатори ----------
+    Thing topic siren "Сирена" [
+        availabilityTopic="home/hall/siren/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type switch : power "Сирена" [ stateTopic="home/hall/siren/state",
+                commandTopic="home/hall/siren/set",
+                transformationPattern="JSONPATH:$.state",
+                formatBeforePublish="{\"state\": \"%s\"}", on="ON", off="OFF" ]
+    }
+    Thing topic lock "Замок дверей" [
+        availabilityTopic="home/entrance/lock/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type string : state "Замок" [ stateTopic="home/entrance/lock/state",
+                commandTopic="home/entrance/lock/set",
+                transformationPattern="JSONPATH:$.state",
+                formatBeforePublish="{\"state\": \"%s\"}" ]
+    }
+    Thing topic yardlight "Світло подвір'я" [
+        availabilityTopic="home/yard/light/status",
+        payloadAvailable="online", payloadNotAvailable="offline" ] {
+        Channels:
+            Type switch : power "Світло" [ stateTopic="home/yard/light/state",
+                commandTopic="home/yard/light/set",
+                transformationPattern="JSONPATH:$.state",
+                formatBeforePublish="{\"state\": \"%s\"}", on="ON", off="OFF" ]
+    }
+
+    // ---------- Режим охорони ----------
+    Thing topic mode "Режим охорони" {
+        Channels:
+            Type string : state "Режим" [ stateTopic="home/system/mode/state",
+                commandTopic="home/system/mode/set",
+                transformationPattern="JSONPATH:$.state",
+                formatBeforePublish="{\"state\": \"%s\"}" ]
+    }
+}
