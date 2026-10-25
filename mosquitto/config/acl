@@ -2,11 +2,11 @@
 user admin
 topic readwrite #
 
-# openHAB: читає все, керує лише через /set
+# openHAB: читає все, керує лише через /set, публікує стан режиму охорони
 user openhab
 topic read home/#
 topic write home/+/+/set
-topic write home/system/mode/set
+topic write home/system/mode/state
 
 # Сенсори: лише своя телеметрія і статус
 user door
