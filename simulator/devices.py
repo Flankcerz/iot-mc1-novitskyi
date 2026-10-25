@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Симулятор охоронної системи (варіант 3). Один процес, дев'ять клієнтів MQTT,
 кожен зі своїм користувачем, паролем і Last Will."""
-import argparse, json, os, random, threading, time
+import argparse, hashlib, json, os, random, threading, time
 from pathlib import Path
 import paho.mqtt.client as mqtt
 
@@ -95,8 +95,10 @@ class Keypad(Device):
         print(f"[keypad] режим тепер: {msg.payload.decode()}")
 
     def enter_pin(self, pin):
-        self.telemetry(pin, "pin")
-        print("[keypad] PIN введено (****)")  # сам код у консоль не виводимо
+        # У мережу йде лише SHA-256 від PIN, сам код ні в топіках, ні в логах не з'являється
+        digest = hashlib.sha256(pin.encode()).hexdigest()
+        self.telemetry(digest, "sha256")
+        print("[keypad] PIN введено (****)")
 
     def set_mode(self, mode):
         self.client.publish("home/system/mode/set", json.dumps({"state": mode}), qos=1)

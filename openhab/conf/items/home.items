@@ -1,0 +1,22 @@
+// Сенсори
+Contact Door_Contact    "Двері [%s]"               { channel="mqtt:topic:home:door:state" }
+Contact Window1_Contact "Вікно 1 [%s]"             { channel="mqtt:topic:home:window1:state" }
+Contact Window2_Contact "Вікно 2 [%s]"             { channel="mqtt:topic:home:window2:state" }
+Switch  Yard_Motion     "Рух на подвір'ї [%s]"     { channel="mqtt:topic:home:motion:state" }
+Number  Smoke_Level     "Задимленість [%.2f %%/м]" { channel="mqtt:topic:home:smoke:level" }
+String  Keypad_Code     "Код клавіатури (хеш)"     { channel="mqtt:topic:home:keypad:code" }
+
+// Актуатори
+Switch  Siren_Power     "Сирена"                   { channel="mqtt:topic:home:siren:power" }
+String  Door_Lock       "Замок [%s]"               { channel="mqtt:topic:home:lock:state" }
+Switch  Yard_Light      "Світло подвір'я"          { channel="mqtt:topic:home:yardlight:power" }
+
+// Режим охорони
+String  Security_Mode_Req "Запит режиму [%s]"      { channel="mqtt:topic:home:mode:request" }
+String  Security_Mode     "Режим охорони [%s]"     { channel="mqtt:topic:home:mode:state" }
+
+// Службові (без каналів)
+Switch  Alarm_Active    "Тривога"
+String  Alarm_Text      "Стан [%s]"
+Switch  Fire_Alarm      "Пожежна тривога"
+Switch  Demo_Night_Mode "Нічний режим для демо"

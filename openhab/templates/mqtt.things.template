@@ -79,9 +79,13 @@ Bridge mqtt:broker:home "MQTT брокер" [
     // ---------- Режим охорони ----------
     Thing topic mode "Режим охорони" {
         Channels:
-            Type string : state "Режим" [ stateTopic="home/system/mode/state",
+            Type string : request "Запит режиму" [ stateTopic="home/system/mode/set",
                 commandTopic="home/system/mode/set",
                 transformationPattern="JSONPATH:$.state",
                 formatBeforePublish="{\"state\": \"%s\"}" ]
+            Type string : state "Режим" [ stateTopic="home/system/mode/state",
+                commandTopic="home/system/mode/state",
+                transformationPattern="JSONPATH:$.state",
+                formatBeforePublish="{\"state\": \"%s\"}", retained=true ]
     }
 }

@@ -1,0 +1,25 @@
+sitemap home label="Охоронна система" {
+    Frame label="Тривога" {
+        Text item=Alarm_Text icon="alarm" labelcolor=[Alarm_Active==ON="red"] valuecolor=[Alarm_Active==ON="red", Alarm_Active==OFF="green"]
+    }
+    Frame label="Режим" {
+        Selection item=Security_Mode_Req label="Змінити режим" mappings=[HOME="Вдома", ARMED="Охорона"]
+        Text item=Security_Mode
+    }
+    Frame label="Сенсори" {
+        Text item=Door_Contact
+        Text item=Window1_Contact
+        Text item=Window2_Contact
+        Text item=Yard_Motion
+        Text item=Smoke_Level
+    }
+    Frame label="Керування" {
+        Switch item=Siren_Power
+        Switch item=Door_Lock mappings=[LOCKED="Замкнути", UNLOCKED="Відімкнути"]
+        Switch item=Yard_Light
+        Switch item=Demo_Night_Mode
+    }
+    Frame label="Графік" {
+        Chart item=Smoke_Level period=h service="rrd4j" label="Задимленість за годину"
+    }
+}
