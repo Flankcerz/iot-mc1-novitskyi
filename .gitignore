@@ -16,3 +16,4 @@ __pycache__/
 openhab/userdata/
 openhab/conf/things/mqtt.things
 certs/*.jks
+openhab/conf/transform/pin.map

@@ -43,3 +43,8 @@ OH_PASS=$(grep '^MQTT_PASS_OPENHAB=' .env | cut -d= -f2)
 sed "s/__OPENHAB_PASS__/$OH_PASS/" openhab/templates/mqtt.things.template \
   > openhab/conf/things/mqtt.things
 echo "openHAB: truststore і mqtt.things створено"
+# --- хеш PIN для правила openHAB (сам PIN у openHAB не передається) ---
+mkdir -p openhab/conf/transform
+PIN=$(grep '^KEYPAD_PIN=' .env | cut -d= -f2)
+echo "hash=$(printf %s "$PIN" | openssl dgst -sha256 | awk '{print $NF}')" > openhab/conf/transform/pin.map
+echo "pin.map створено"

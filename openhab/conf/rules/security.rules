@@ -55,19 +55,15 @@ rule "Введення PIN"
 when
     Item Keypad_Code received update
 then
-    val pin = System::getenv("KEYPAD_PIN")
-    if (pin !== null) {
-        val md = java.security.MessageDigest::getInstance("SHA-256")
-        val expected = String::format("%064x", new java.math.BigInteger(1, md.digest(pin.getBytes("UTF-8"))))
-        if (Keypad_Code.state.toString == expected) {
-            if (entryTimer !== null) {
-                entryTimer.cancel()
-                entryTimer = null
-            }
-            Security_Mode_Req.sendCommand("HOME")
-        } else {
-            logWarn("security", "Хибний PIN")
+    val expected = transform("MAP", "pin.map", "hash")
+    if (Keypad_Code.state.toString == expected) {
+        if (entryTimer !== null) {
+            entryTimer.cancel()
+            entryTimer = null
         }
+        Security_Mode_Req.sendCommand("HOME")
+    } else {
+        logWarn("security", "Хибний PIN")
     }
 end
 
