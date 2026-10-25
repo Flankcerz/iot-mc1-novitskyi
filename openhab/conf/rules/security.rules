@@ -1,0 +1,112 @@
+var Timer entryTimer = null
+var Timer lightTimer = null
+val double SMOKE_ALARM = 2.0
+val double SMOKE_CLEAR = 0.5
+
+rule "Ініціалізація"
+when
+    System started
+then
+    Alarm_Active.postUpdate(OFF)
+    Fire_Alarm.postUpdate(OFF)
+    Alarm_Text.postUpdate("Все спокійно")
+    Demo_Night_Mode.postUpdate(OFF)
+end
+
+rule "Режим змінено"
+when
+    Item Security_Mode_Req changed
+then
+    Security_Mode.sendCommand(Security_Mode_Req.state.toString)
+    if (Security_Mode_Req.state.toString == "HOME") {
+        if (entryTimer !== null) {
+            entryTimer.cancel()
+            entryTimer = null
+        }
+        if (Fire_Alarm.state != ON) {
+            Siren_Power.sendCommand(OFF)
+            Alarm_Active.postUpdate(OFF)
+            Alarm_Text.postUpdate("Все спокійно")
+        }
+    }
+end
+
+// Правило 1: охорона, відкриття дверей/вікна, 30 с на PIN
+rule "Охорона: відкриття дверей або вікна"
+when
+    Item Door_Contact changed to OPEN or
+    Item Window1_Contact changed to OPEN or
+    Item Window2_Contact changed to OPEN
+then
+    if (Security_Mode.state.toString == "ARMED" && entryTimer === null) {
+        Alarm_Text.postUpdate("Відкрито при охороні: введіть PIN за 30 с")
+        entryTimer = createTimer(now.plusSeconds(30), [ |
+            entryTimer = null
+            if (Security_Mode.state.toString == "ARMED") {
+                Siren_Power.sendCommand(ON)
+                Alarm_Active.postUpdate(ON)
+                Alarm_Text.postUpdate("ТРИВОГА: PIN не введено")
+            }
+        ])
+    }
+end
+
+rule "Введення PIN"
+when
+    Item Keypad_Code received update
+then
+    val pin = System::getenv("KEYPAD_PIN")
+    if (pin !== null) {
+        val md = java.security.MessageDigest::getInstance("SHA-256")
+        val expected = String::format("%064x", new java.math.BigInteger(1, md.digest(pin.getBytes("UTF-8"))))
+        if (Keypad_Code.state.toString == expected) {
+            if (entryTimer !== null) {
+                entryTimer.cancel()
+                entryTimer = null
+            }
+            Security_Mode_Req.sendCommand("HOME")
+        } else {
+            logWarn("security", "Хибний PIN")
+        }
+    }
+end
+
+// Правило 2: дим, сирена і відмикання замка за будь-якого режиму
+rule "Дим: евакуація"
+when
+    Item Smoke_Level received update
+then
+    if (Smoke_Level.state instanceof Number) {
+        val level = (Smoke_Level.state as Number).doubleValue
+        if (level > SMOKE_ALARM && Fire_Alarm.state != ON) {
+            Fire_Alarm.postUpdate(ON)
+            Siren_Power.sendCommand(ON)
+            Door_Lock.sendCommand("UNLOCKED")
+            Alarm_Active.postUpdate(ON)
+            Alarm_Text.postUpdate("ПОЖЕЖА: сирена, замок відімкнено")
+        } else if (level < SMOKE_CLEAR && Fire_Alarm.state == ON) {
+            Fire_Alarm.postUpdate(OFF)
+            Siren_Power.sendCommand(OFF)
+            Alarm_Active.postUpdate(OFF)
+            Alarm_Text.postUpdate("Все спокійно")
+        }
+    }
+end
+
+// Правило 3: рух на подвір'ї з 22:00 до 06:00, світло на 2 хв
+rule "Рух на подвір'ї вночі"
+when
+    Item Yard_Motion changed to ON
+then
+    val h = now.getHour
+    if (h >= 22 || h < 6 || Demo_Night_Mode.state == ON) {
+        Yard_Light.sendCommand(ON)
+        if (lightTimer !== null) {
+            lightTimer.cancel()
+        }
+        lightTimer = createTimer(now.plusMinutes(2), [ |
+            Yard_Light.sendCommand(OFF)
+            lightTimer = null
+        ])
+    }
+end
