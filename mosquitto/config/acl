@@ -1,0 +1,53 @@
+# Адміністратор
+user admin
+topic readwrite #
+
+# openHAB: читає все, керує лише через /set
+user openhab
+topic read home/#
+topic write home/+/+/set
+topic write home/system/mode/set
+
+# Сенсори: лише своя телеметрія і статус
+user door
+topic write home/entrance/door/telemetry
+topic write home/entrance/door/status
+
+user window1
+topic write home/livingroom/window1/telemetry
+topic write home/livingroom/window1/status
+
+user window2
+topic write home/bedroom/window2/telemetry
+topic write home/bedroom/window2/status
+
+user motion
+topic write home/yard/motion/telemetry
+topic write home/yard/motion/status
+
+user smoke
+topic write home/hall/smoke/telemetry
+topic write home/hall/smoke/status
+
+# Клавіатура: PIN-код і зміна режиму
+user keypad
+topic write home/hall/keypad/telemetry
+topic write home/hall/keypad/status
+topic write home/system/mode/set
+topic read home/system/mode/state
+
+# Актуатори: читають свій /set, пишуть свій /state і /status
+user siren
+topic read home/hall/siren/set
+topic write home/hall/siren/state
+topic write home/hall/siren/status
+
+user lock
+topic read home/entrance/lock/set
+topic write home/entrance/lock/state
+topic write home/entrance/lock/status
+
+user light
+topic read home/yard/light/set
+topic write home/yard/light/state
+topic write home/yard/light/status

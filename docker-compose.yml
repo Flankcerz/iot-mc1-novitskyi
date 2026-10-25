@@ -1,0 +1,27 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mc1-mosquitto
+    ports:
+      - "8883:8883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:ro
+      - ./certs:/mosquitto/certs:ro
+      - mosquitto_data:/mosquitto/data
+    restart: unless-stopped
+
+  openhab:
+    image: openhab/openhab:latest
+    container_name: mc1-openhab
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./openhab/conf:/openhab/conf
+      - openhab_userdata:/openhab/userdata
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+
+volumes:
+  mosquitto_data:
+  openhab_userdata:
